@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  mongodb:
+    container_name: ${DATABASE_HOST}
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+    expose:
+      - ${DATABASE_PORT}
+    volumes:
+      - ./mongo:/data/db
+    restart: unless-stopped
+
+  mongo_express:
+    container_name: mongo_express
+    image: mongo-express:latest
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${DATABASE_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${DATABASE_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${DATABASE_URL}?authSource=admin
+    ports:
+      - 8002:8081
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  fimi_redis:
+    container_name: fimi_redis
+    image: redis:alpine
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+
+  redis_commander:
+    container_name: redis_commander
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:fimi_redis:6379
+    ports:
+      - 8088:8081
+    depends_on:
+      - fimi_redis
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  mynetwork:
+    driver: bridge
+
+# volumes:
+#   mongo1data:
+#   mongo1config:
+#   mongo2data:
+#   mongo2config:
+#   mongo3data:
+#   mongo3config:
+#   sharedconfig:
