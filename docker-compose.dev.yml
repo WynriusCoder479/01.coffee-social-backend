@@ -1,30 +1,18 @@
 version: '3.8'
 
 services:
-  mongodb:
-    container_name: ${DATABASE_HOST}
-    image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-    expose:
-      - ${DATABASE_PORT}
-    volumes:
-      - ./mongo:/data/db
-    restart: unless-stopped
-
-  mongo_express:
-    container_name: mongo_express
-    image: mongo-express:latest
-    environment:
-      ME_CONFIG_BASICAUTH_USERNAME: ${DATABASE_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${DATABASE_PASSWORD}
-      ME_CONFIG_MONGODB_URL: ${DATABASE_URL}?authSource=admin
+  postgres:
+    container_name: postgres_db
+    image: postgres:latest
+    restart: always
     ports:
-      - 8002:8081
-    depends_on:
-      - mongodb
-    restart: unless-stopped
+      - ${DATABASE_PORT}:5432
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - ./postgres_db:/var/lib/postgresql/data
 
   fimi_redis:
     container_name: fimi_redis
@@ -52,6 +40,10 @@ networks:
   mynetwork:
     driver: bridge
 
+
+volumes:
+    postgres_db:
+        driver: local
 # volumes:
 #   mongo1data:
 #   mongo1config:
