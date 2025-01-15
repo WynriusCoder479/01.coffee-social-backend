@@ -53,6 +53,6 @@ export default ts.config(
 		}
 	},
 	{
-		ignores: ['/dist', '/node_modules', '/build']
+		ignores: ['/dist', '/node_modules', '/build', '/postgres_db']
 	}
 )
